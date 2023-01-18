@@ -18,7 +18,13 @@ const getFileAtRef = async (ref: string, filename: string): Promise<string> => {
 };
 
 const isCommitted = async (): Promise<boolean> => {
-  return (await spawn('git', ['status', '-s', '--porcelain']).assertSuccess().text()) == '';
+  const ignored = ['.npmrc'];
+  const uncommitted = (await spawn('git', ['status', '-s', '--porcelain']).assertSuccess().text())
+    .split(/\n\r?/)
+    .map((line) => line.replace(/^.{2} /, ''))
+    .filter((filename) => !ignored.includes(filename));
+
+  return uncommitted.length === 0;
 };
 
 const isPathModified = async (baseRef: string, path: string): Promise<boolean> => {
