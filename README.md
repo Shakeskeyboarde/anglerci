@@ -42,7 +42,7 @@ Angler CI works in two phases:
    - Verify all changes are committed.
    - Verify versions in modified workspaces have increased.
    - Verify CHANGELOG.md contains an entry for the release version.
-   - Verify CHANGELOG.md correctly documents the version increment level (major, minor, or patch).
+   - Verify CHANGELOG.md correctly documents the version increment (major, minor, or patch).
    - Verify local dependency versions have been updated.
    - Verify local private dependencies are only used as devDependencies.
    - Verify incremented workspace versions are unpublished.
