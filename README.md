@@ -80,7 +80,7 @@ Cons:
 
 The `catch` command can also be used as a Git `pre-push` hook. This is not a replacement for a PR pipeline check, but it can help to call out potential problems earlier.
 
-The recommended approach is to use [Husky](https://www.npmjs.com/package/husky)
+The recommended approach is to use [Husky](https://www.npmjs.com/package/husky), so that hooks are installed automatically whenever a developer runs the `npm install` command.
 
 1. Install Husky.
    - `npm i -D husky`
