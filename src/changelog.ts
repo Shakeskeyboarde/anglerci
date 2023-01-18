@@ -34,9 +34,9 @@ const getChangeLogDiff = async (
     return 'missing';
   }
 
-  return /^#+[\t ]*breaking[\t ]*changes?[\t ]*$/imu.test(section)
+  return /^#+.*\b(?:breaking|major)\b/imu.test(section)
     ? 'major'
-    : /^#+[\t ]*features?[\t ]*$/imu.test(section)
+    : /^#+.*\b(?:features?|enhancements?|minor)\b/imu.test(section)
     ? 'minor'
     : 'patch';
 };
