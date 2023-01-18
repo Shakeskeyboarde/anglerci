@@ -50,9 +50,9 @@ Angler CI works in two phases:
    - Tag the commit which is being released.
    - Publish packages for all modified or unpublished workspaces.
 
-The `npm install` command will automatically create symlinks for local dependencies (dependencies between workspaces in a monorepo), as long as the dependency version range matches the workspace version. Therefore, the `catch` command requires that all local dependencies either have the exact matching version, or a caret/tilde range (eg. `^1.0.0` or `~1.0.0`) with the exact minimum version.
+The `npm install` command will automatically create symlinks for local dependencies (dependencies between workspaces in a monorepo), as long as the dependency version range matches the workspace version. Therefore, the `catch` command requires that all local dependencies either have the exact matching version, or range where the _minimum_ version is the current local workspace version.
 
-Changelog updates are only enforced for workspaces that contain a `CHANGELOG.md` file. If the file exists, it must contain a heading (any level) with the current version number (leading `v` is optional). If the major version has increased, there must be a `Breaking Changes` subheading. Conversely, if there is a `Breaking Changes` subheading, the major version must be increased. The same is true for a `Features` subheading and the minor version, and a `Fixes` (or `Chores`) subheading and the patch version.
+Changelog updates are only enforced for workspaces that contain a `CHANGELOG.md` file. If the file exists, it must contain a heading (any level) with the current version number (leading `v` is optional). If the major version has increased, there must be a `Breaking Changes` subheading. Conversely, if there is a `Breaking Changes` subheading, the major version must be increased. The same is true for a `Features` subheading and the minor version. If neither of those headings is present, then only the patch version can be incremented. All headings are matched case-insensitively.
 
 The `release` command will publish packages for all modified workspaces, as well as any workspaces with versions that are unpublished (even if unmodified). Publication is ordered by interdependency, so any local dependency will be published before its dependents.
 
@@ -60,7 +60,7 @@ The `release` command also creates a Git annotated-tag (`release-<timestamp>`), 
 
 ## Why it works this way
 
-Angler CI treats the PR as the moment of truth (instead of each commit). It catches things you might have forgotten, such as bumping the version number or updating the changelog. It does not try to do these things for you. At the end of they day, there is no substitute for agreed-upon conventions and peer review to ensure the quality of commit and changelog messaging.
+Angler CI expects developers to version and update the changelog directly, and it treats the PR as the moment of truth (instead of each commit). It catches things you might have forgotten. It does not try to do these things for you. At the end of they day, there is no substitute for agreed-upon conventions and peer review to ensure the quality of commit and changelog messaging.
 
 Solutions like [conventional commits](https://www.conventionalcommits.org) seem like a good idea, but (IMO) generally don't decrease the amount of work, speed up iteration, reduce mistakes, or improve the quality of commit messages.
 
@@ -68,7 +68,7 @@ Pros:
 
 - No non-user generated code changes in your CI pipeline.
 - No extra commits/PRs for updating version numbers.
-- No constraints on commit structuring.
+- No constraints on commit structuring or changelog formatting.
 - No workflow learning curve requiring complicated commit fixups.
 
 Cons:

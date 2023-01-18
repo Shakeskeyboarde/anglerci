@@ -37,8 +37,13 @@ program
 
     const workspaces = await npm.getWorkspaces(baseRef);
 
+    if ([...workspaces.values()].every((workspace) => !workspace.modified && !workspace.published)) {
+      console.log('No modified or unpublished workspaces.');
+      return;
+    }
+
     for (const [name, workspace] of workspaces) {
-      if (!workspace.modified) {
+      if (!workspace.modified && workspace.published) {
         continue;
       }
 
@@ -96,15 +101,20 @@ program
         process.exitCode ??= 1;
       }
     }
+
+    if (!process.exitCode) {
+      console.log('All modified or unpublished workspaces are ready for release.');
+    }
   });
 
 program
   .command('release')
   .description('Publish packages for all modified or unpublished workspaces.')
   .option('-b, --base-ref <ref>', 'The Git base reference for detecting modified workspaces')
+  .option('--no-tag', 'Disable automatic commit tagging')
   .allowExcessArguments(false)
   .allowUnknownOption(false)
-  .action(async ({ baseRef = null }) => {
+  .action(async ({ baseRef = null, tag }) => {
     baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
     process.chdir(await npm.getPrefix());
 
@@ -118,20 +128,31 @@ program
     const workspaces = await npm.getWorkspaces(baseRef);
 
     if ([...workspaces.values()].every((workspace) => !workspace.modified && !workspace.published)) {
-      console.error('No modified or unpublished workspaces.');
+      console.log('No modified or unpublished workspaces.');
       return;
     }
 
     // Tag the commit which is being released.
-    await git.createTag();
+    if (tag) {
+      await git.createTag();
+    }
 
     // Publish packages for all modified or unpublished workspaces.
     for (const [name, workspace] of workspaces) {
+      if (!workspace.modified && workspace.published) {
+        console.log(`Skipping ${name}@${workspace.version} (already published).`);
+        continue;
+      }
+
+      process.stdout.write(
+        `Publishing ${name}@${workspace.version} (${workspace.modified ? 'modified' : 'unpublished'})...`,
+      );
+
       try {
         await npm.publish(workspace.location);
-        console.log(`Successfully published the ${name}@${workspace.version} package.`);
+        console.log('succeeded.');
       } catch (err) {
-        console.log(`Failed to publish the ${name}@${workspace.version} package.`);
+        console.log('failed.');
         throw err;
       }
     }

@@ -24,8 +24,8 @@ const getChangeLogDiff = async (
     .replace(/-/gu, '\\x2d');
 
   const sectionRx = new RegExp(
-    `(?:^|\\n\\r?)(#+)[\\t ]*v?${versionPattern}(?=\\n\\r?)(?<content>[\\s\\S]*?)(?=\\n\\r?\\1(?!#)|$)`,
-    'u',
+    `(?:^|\\n\\r?)(#+)[\\t ]*(?:v(?:ersion:?[\t ]+)?)?${versionPattern}(?=\\n\\r?)(?<content>[\\s\\S]*?)(?=\\n\\r?\\1(?!#)|$)`,
+    'iu',
   );
 
   const section = text.match(sectionRx)?.groups?.content?.trim();
