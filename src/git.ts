@@ -34,6 +34,8 @@ const isPathModified = async (baseRef: string, path: string): Promise<boolean> =
       .lines()
   ).filter((filename) => !IGNORED_FILES.includes(filename));
 
+  console.log(modified);
+
   return modified.length > 0;
 };
 

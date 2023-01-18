@@ -61,22 +61,24 @@ program
         process.exitCode ??= 1;
       }
 
-      const changeLogDiff = await changelog.getChangeLogDiff(workspace.location, workspace.version);
+      if (workspace.version.prerelease.length === 0) {
+        const changeLogDiff = await changelog.getChangeLogDiff(workspace.location, workspace.version);
 
-      // Verify CHANGELOG.md contains an entry for the release version.
-      if (changeLogDiff === 'missing') {
-        console.error(`${name}: Add a ${workspace.version} section to the changelog.`);
-        process.exitCode ??= 1;
-      }
-      // Verify CHANGELOG.md correctly documents the version increment.
-      else if (changeLogDiff && versionDiff && changeLogDiff !== versionDiff) {
-        if (changeLogDiff < versionDiff) {
-          console.error(`${name}: Increment the ${changeLogDiff} version to match the changelog.`);
-        } else {
-          console.error(`${name}: Documentation the ${versionDiff} changes in the changelog.`);
+        // Verify CHANGELOG.md contains an entry for the release version.
+        if (changeLogDiff === 'missing') {
+          console.error(`${name}: Add a ${workspace.version} section to the changelog.`);
+          process.exitCode ??= 1;
         }
+        // Verify CHANGELOG.md correctly documents the version increment.
+        else if (changeLogDiff && versionDiff && changeLogDiff !== versionDiff) {
+          if (changeLogDiff < versionDiff) {
+            console.error(`${name}: Increment the ${changeLogDiff} version to match the changelog.`);
+          } else {
+            console.error(`${name}: Documentation the ${versionDiff} changes in the changelog.`);
+          }
 
-        process.exitCode ??= 1;
+          process.exitCode ??= 1;
+        }
       }
 
       // Verify local dependency versions have been updated.

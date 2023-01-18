@@ -3,7 +3,10 @@
   "description": "A validation-only approach to releasing projects which use NPM and Git.",
   "author": "Chris Ackerman <chris@topher.land>",
   "license": "ISC",
-  "version": "0.0.17",
+  "version": "0.0.18-prerelease",
+  "publishConfig": {
+    "tag": "prerelease"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Shakeskeyboarde/anglerci.git"
