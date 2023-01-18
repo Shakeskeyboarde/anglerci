@@ -5,13 +5,13 @@
 ### Fixes
 
 - Published status was accidentally double checked.
+- Testing modifications to CHANGELOG.md without code changes.
 
 ## v0.0.16
 
 ### Fixes
 
 - Ignored files not working correctly for detecting uncommitted change and modifications.
-- Testing modifications to CHANGELOG.md without code changes.
 
 ### Other
 
