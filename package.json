@@ -1,9 +1,9 @@
 {
   "name": "anglerci",
-  "description": "A different approach to package releases. Designed for NPM and Git.",
+  "description": "A validation-only approach to releasing projects which use NPM and Git.",
   "author": "Chris Ackerman <chris@topher.land>",
   "license": "ISC",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Shakeskeyboarde/anglerci.git"
@@ -16,7 +16,7 @@
     "git",
     "npm",
     "github",
-    "gitlab",
+    "actions",
     "ci",
     "publish",
     "push",
