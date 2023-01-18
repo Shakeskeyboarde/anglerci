@@ -22,7 +22,7 @@ const isCommitted = async (): Promise<boolean> => {
   const uncommitted = (await spawn('git', ['status', '-s', '--porcelain']).assertSuccess().text())
     .split(/\n\r?/)
     .map((line) => line.replace(/^.{2} /, ''))
-    .filter((filename) => !ignored.includes(filename));
+    .filter((filename) => filename && !ignored.includes(filename));
 
   return uncommitted.length === 0;
 };
