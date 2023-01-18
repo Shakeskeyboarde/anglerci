@@ -1,12 +1,39 @@
 {
   "name": "anglerci",
   "description": "A different approach to package releases. Designed for NPM and Git.",
-  "author": {
-    "name": "Chris Ackerman",
-    "email": "chris@topher.land"
-  },
+  "author": "Chris Ackerman <chris@topher.land>",
   "license": "ISC",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shakeskeyboarde/anglerci.git"
+  },
+  "keywords": [
+    "build",
+    "changelog",
+    "commit",
+    "distribution",
+    "git",
+    "npm",
+    "github",
+    "gitlab",
+    "ci",
+    "publish",
+    "push",
+    "tag",
+    "catch",
+    "release",
+    "repository",
+    "validate",
+    "validation",
+    "semver",
+    "package",
+    "workspaces",
+    "deploy",
+    "continuous",
+    "integration",
+    "version"
+  ],
   "files": [
     "lib/**"
   ],
@@ -14,8 +41,10 @@
     "lib": "lib"
   },
   "bin": {
+    "anglerci": "lib/main.js",
     "angler": "lib/main.js"
   },
+  "main": "package.json",
   "type": "module",
   "sideEffects": false,
   "scripts": {

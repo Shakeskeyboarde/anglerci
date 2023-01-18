@@ -7,7 +7,6 @@ A validation-only approach to releasing projects which use NPM and Git.
 - Git >= v2.19.2
 - NodeJS >= v14.17.0
 - NPM >= v8.16.0
-- (workspaces) Local dependencies using `*`, `file:`, or `workspace:` specs
 
 ## Getting started
 

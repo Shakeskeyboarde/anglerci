@@ -39,17 +39,17 @@ jobs:
       #     fail_ci_if_error: true
       #     verbose: true
 
-      # - name: Publish (NPM)
-      #   continue-on-error: true
-      #   run: |
-      #     npm config --location project set //registry.npmjs.org/:_authToken '${NPM_TOKEN}'
-      #     if [ "$GITHUB_REF_NAME" == "main" ] && [ "$GITHUB_REF_TYPE" == "branch" ]; then
-      #       npm publish --access public --ignore-scripts *.tgz
-      #     else
-      #       npm publish --tag "$GITHUB_REF_NAME" --access public --ignore-scripts *.tgz
-      #     fi
-      #   env:
-      #     NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Publish (NPM)
+        continue-on-error: true
+        run: |
+          npm config --location project set //registry.npmjs.org/:_authToken '${NPM_TOKEN}'
+          if [ "$GITHUB_REF_NAME" == "main" ] && [ "$GITHUB_REF_TYPE" == "branch" ]; then
+            npm publish --access public --ignore-scripts *.tgz
+          else
+            npm publish --tag "$GITHUB_REF_NAME" --access public --ignore-scripts *.tgz
+          fi
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: Create Workspace Artifact
         if: ${{ always() }}
@@ -63,4 +63,4 @@ jobs:
         with:
           name: workspace
           path: workspace.tar
-          retention-days: 7
+          retention-days: 1
