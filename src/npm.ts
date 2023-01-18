@@ -133,7 +133,7 @@ const isPublished = async (name: string, version: semver.SemVer): Promise<boolea
 };
 
 const publish = async (location: string): Promise<void> => {
-  await spawn('npm', ['--verbose', '-w', `./${location}`, 'publish'])
+  await spawn('npm', ['--verbose', ...(location === '.' ? [] : ['-w', `./${location}`]), 'publish'])
     .assertSuccess()
     .wait();
 };
