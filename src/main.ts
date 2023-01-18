@@ -20,6 +20,7 @@ program
 
 program
   .command('catch')
+  .aliases(['check', 'verify', 'validate', 'test'])
   .description('Verify that a changeset is ready for release.')
   .option('-b, --base-ref <ref>', 'The Git base reference for detecting modified workspaces')
   .allowExcessArguments(false)
@@ -114,6 +115,7 @@ program
 
 program
   .command('release')
+  .aliases(['publish', 'deploy'])
   .description('Publish packages for all modified or unpublished workspaces.')
   .option('-b, --base-ref <ref>', 'The Git base reference for detecting modified workspaces')
   .option('--no-tag', 'Disable automatic commit tagging')
