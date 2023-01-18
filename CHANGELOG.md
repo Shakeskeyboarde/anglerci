@@ -5,6 +5,7 @@
 ### Fixes
 
 - Published status was accidentally double checked.
+- Testing changelog only releases.
 
 ## v0.0.16
 
