@@ -45,9 +45,9 @@ Angler CI works in two phases:
    - Verify CHANGELOG.md correctly documents the version increment level (major, minor, or patch).
    - Verify local dependency versions have been updated.
    - Verify local private dependencies are only used as devDependencies.
-   - Verify new workspace versions are unpublished.
+   - Verify incremented workspace versions are unpublished.
 2. `release`
-   - Verify that all changes have been committed.
+   - Verify all changes are committed.
    - Tag the commit which is being released.
    - Publish packages for all modified or unpublished workspaces.
 
@@ -75,3 +75,19 @@ Pros:
 Cons:
 
 - Simultaneous PRs may result in version "collisions". When a PR is resolved and merged, the effective "previous" version of all following PRs is updated. Updates may be required to these remaining PRs to re-increment version numbers. This is a minor task, and merging upstream changes will usually be required in follow-up PRs anyway.
+
+# Git Pre-Push Hook
+
+The `catch` command can also be used as a Git `pre-push` hook. This is not a replacement for a PR pipeline check, but it can help to call out potential problems earlier.
+
+The recommended approach is to use [Husky](https://www.npmjs.com/package/husky)
+
+1. Install Husky.
+   - `npm i -D husky`
+   - `npm pkg set scripts.prepare="husky install"`
+   - `npm run prepare`
+2. Add the Angler CI pre-push hook.
+   - `npx husky add .husky/pre-push "angler catch"`
+   - `git add .husky/pre-push`
+
+Now the Angler CI `catch` command will run whenever you use the `git push` command.

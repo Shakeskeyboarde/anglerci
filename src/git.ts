@@ -34,7 +34,7 @@ const createTag = async (): Promise<void> => {
   const tagName = `release-${Date.now()}`;
 
   await spawn('git', ['tag', '-a', '-m', 'Released by Angler CI.', tagName]).assertSuccess().wait();
-  await spawn('git', ['push', 'origin', `refs/tags/${tagName}`])
+  await spawn('git', ['push', '--no-verify', 'origin', `refs/tags/${tagName}`])
     .assertSuccess()
     .wait();
 };
