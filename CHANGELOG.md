@@ -1,5 +1,8 @@
 # Changelog
 
-## v0.0.13
+## v0.0.14
 
-MVP
+### Fixes
+
+- Uncommitted changes were always detected.
+- Always ignore changes to .npmrc and CHANGELOG.md

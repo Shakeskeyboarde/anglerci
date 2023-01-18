@@ -6,6 +6,7 @@ type SpawnedProcess = {
   wait: () => Promise<boolean>;
   json: <TType = any>() => Promise<TType>;
   text: () => Promise<string>;
+  lines: () => Promise<string[]>;
 };
 
 class SpawnError extends Error {
@@ -32,6 +33,7 @@ const spawn = (command: string, args: string[]): SpawnedProcess => {
   let assert = false;
   let successPromise: Promise<boolean> | undefined;
   let textPromise: Promise<string> | undefined;
+  let linesPromise: Promise<string[]> | undefined;
   let jsonPromise: Promise<any> | undefined;
 
   const promise = new Promise<{ buffer: Buffer; success: boolean }>((resolve, reject) => {
@@ -65,6 +67,7 @@ const spawn = (command: string, args: string[]): SpawnedProcess => {
     wait: () => successPromise ?? (successPromise = promise.then(({ success }) => success)),
     json: () => jsonPromise ?? (jsonPromise = self.text().then((text) => JSON.parse(text))),
     text: () => textPromise ?? (textPromise = promise.then(({ buffer }) => buffer.toString('utf8').trim())),
+    lines: () => linesPromise ?? (linesPromise = self.text().then((text) => (text ? text.split(/\n\r?/g) : []))),
   };
 
   return self;

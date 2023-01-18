@@ -1,5 +1,7 @@
 import { spawn } from './spawn.js';
 
+const IGNORED_FILES = ['.npmrc', 'CHANGELOG.md'];
+
 const getBaseRefTag = async (): Promise<string | null> => {
   return await spawn('git', ['describe', '--abbrev=0', '--first-parent'])
     .assertSuccess()
@@ -18,22 +20,21 @@ const getFileAtRef = async (ref: string, filename: string): Promise<string> => {
 };
 
 const isCommitted = async (): Promise<boolean> => {
-  const ignored = ['.npmrc'];
-  const uncommitted = (await spawn('git', ['status', '-s', '--porcelain']).assertSuccess().text())
-    .split(/\n\r?/)
+  const uncommitted = (await spawn('git', ['status', '-s', '--porcelain']).assertSuccess().lines())
     .map((line) => line.replace(/^.{2} /, ''))
-    .filter((filename) => filename && !ignored.includes(filename));
+    .filter((filename) => !IGNORED_FILES.includes(filename));
 
   return uncommitted.length === 0;
 };
 
 const isPathModified = async (baseRef: string, path: string): Promise<boolean> => {
-  const modifiedFilesOutput = await spawn('git', ['diff', '--name-only', `${baseRef}..HEAD`, '--', path])
-    .assertSuccess()
-    .text();
+  const modified = (
+    await spawn('git', ['diff', '--name-only', `${baseRef}..HEAD`, '--', path])
+      .assertSuccess()
+      .lines()
+  ).filter((filename) => !IGNORED_FILES.includes(filename));
 
-  // At least one file is modified that is not CHANGELOG.md
-  return modifiedFilesOutput !== '' && modifiedFilesOutput !== 'CHANGELOG.md';
+  return modified.length > 0;
 };
 
 const createTag = async (): Promise<void> => {
