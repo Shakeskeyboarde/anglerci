@@ -39,7 +39,11 @@ const isPathModified = async (baseRef: string, path: string): Promise<boolean> =
 const createTag = async (): Promise<void> => {
   const tagName = `release-${Date.now()}`;
 
-  await spawn('git', ['tag', '-a', '-m', 'Released by Angler CI.', tagName]).assertSuccess().wait();
+  if (!(await spawn('git', ['config', 'user.name']).wait())) {
+    await spawn('git', ['config', 'user.name', 'anglerci']).assertSuccess().wait();
+  }
+
+  await spawn('git', ['tag', '-a', tagName, '-m', 'Released by Angler CI.']).assertSuccess().wait();
   await spawn('git', ['push', '--no-verify', 'origin', `refs/tags/${tagName}`])
     .assertSuccess()
     .wait();
