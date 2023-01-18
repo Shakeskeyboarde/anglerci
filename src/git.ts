@@ -42,6 +42,7 @@ const createTag = async (): Promise<void> => {
 
   if (!(await spawn('git', ['config', 'user.name']).wait())) {
     await spawn('git', ['config', 'user.name', 'anglerci']).assertSuccess().wait();
+    await spawn('git', ['config', 'user.email', 'anglerci@example.com']).assertSuccess().wait();
   }
 
   await spawn('git', ['tag', '-a', tagName, '-m', 'Released by Angler CI.']).assertSuccess().wait();
