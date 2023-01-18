@@ -21,7 +21,7 @@ class SpawnError extends Error {
     output: string,
     env: Readonly<Record<string, string | undefined>> = {},
   ) {
-    super(`Spawned process returned non-zero exit code (${exitCode})`);
+    super(`Spawned process returned non-zero exit code (${exitCode}).`);
     this.command = command;
     this.exitCode = exitCode;
     this.output = output;

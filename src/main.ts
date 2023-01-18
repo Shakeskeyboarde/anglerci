@@ -37,13 +37,15 @@ program
 
     const workspaces = await npm.getWorkspaces(baseRef);
 
-    if ([...workspaces.values()].every((workspace) => !workspace.modified && !workspace.published)) {
+    if (
+      [...workspaces.values()].every((workspace) => workspace.private || (!workspace.modified && !workspace.published))
+    ) {
       console.log('No modified or unpublished workspaces.');
       return;
     }
 
     for (const [name, workspace] of workspaces) {
-      if (!workspace.modified && workspace.published) {
+      if (workspace.private || (!workspace.modified && workspace.published)) {
         continue;
       }
 
@@ -76,19 +78,22 @@ program
       // Verify local dependency versions have been updated.
       for (const dependencyType of ['dependencies', 'optionalDependencies', 'peerDependencies'] as const) {
         for (const [key, value] of Object.entries(workspace[dependencyType])) {
-          const currentVersion = workspaces.get(key)?.version;
+          const dependency = workspaces.get(key) as npm.Workspace;
 
-          if (!currentVersion) {
+          // Verify local private dependencies are only used as devDependencies.
+          if (dependency.private) {
+            console.error(`${name}: Move the local private ${key} package from ${dependencyType} to devDependencies.`);
+            process.exitCode ??= 1;
             continue;
           }
 
           const minVersion = semver.minVersion(value);
 
-          if (!minVersion || !semver.eq(minVersion, currentVersion)) {
+          if (!minVersion || !semver.eq(minVersion, dependency.version)) {
             console.error(
-              `${name}: Update the ${dependencyType}[${JSON.stringify(
-                key,
-              )}] version range to make ${currentVersion} the lower bound.`,
+              `${name}: Update the ${dependencyType}[${JSON.stringify(key)}] version range to make ${
+                dependency.version
+              } the lower bound.`,
             );
             process.exitCode ??= 1;
           }
@@ -127,7 +132,9 @@ program
 
     const workspaces = await npm.getWorkspaces(baseRef);
 
-    if ([...workspaces.values()].every((workspace) => !workspace.modified && !workspace.published)) {
+    if (
+      [...workspaces.values()].every((workspace) => workspace.private || (!workspace.modified && !workspace.published))
+    ) {
       console.log('No modified or unpublished workspaces.');
       return;
     }
@@ -139,7 +146,7 @@ program
 
     // Publish packages for all modified or unpublished workspaces.
     for (const [name, workspace] of workspaces) {
-      if (!workspace.modified && workspace.published) {
+      if (workspace.private || (!workspace.modified && workspace.published)) {
         console.log(`Skipping ${name}@${workspace.version} (already published).`);
         continue;
       }

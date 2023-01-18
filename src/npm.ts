@@ -4,9 +4,10 @@ import * as git from './git.js';
 import { spawn } from './spawn.js';
 
 type Workspace = {
+  readonly location: string;
   readonly name: string;
   readonly version: semver.SemVer;
-  readonly location: string;
+  readonly private: boolean;
   readonly modified: boolean;
   readonly published: boolean;
   readonly dependencies: Record<string, string>;
@@ -20,9 +21,9 @@ const getPrefix = async (): Promise<string> => {
 
 const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Workspace>> => {
   const all: {
+    location: string;
     name: string;
     version: string;
-    location: string;
     private?: boolean;
     dependencies?: Record<string, string>;
     optionalDependencies?: Record<string, string>;
@@ -42,23 +43,29 @@ const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Worksp
     location,
     name,
     version: rawVersion,
+    private: private_ = false,
     dependencies = {},
     optionalDependencies = {},
     peerDependencies = {},
   } of all) {
+    if (private_) {
+      continue;
+    }
+
     const modified = baseRef ? await git.isPathModified(baseRef, location) : true;
     const version = semver.parse(rawVersion);
 
     if (!version) {
-      throw new Error(`Workspace "${name}" version is invalid (${rawVersion})`);
+      throw new Error(`Workspace "${name}" version is invalid (${rawVersion}).`);
     }
 
-    const published = await isPublished(name, version);
+    const published = private_ || (await isPublished(name, version));
 
     unsorted.push({
       location,
       name,
       version,
+      private: private_,
       modified,
       published,
       dependencies: Object.entries(dependencies).reduce<Record<string, string>>((result, [key, value]) => {
@@ -86,7 +93,7 @@ const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Worksp
     });
 
     if (i < 0) {
-      throw new Error(`Dependency cycle detected (${[...unsorted.map((workspace) => workspace.name)].join(', ')})`);
+      throw new Error(`Dependency cycle detected (${[...unsorted.map((workspace) => workspace.name)].join(', ')}).`);
     }
 
     const workspace = unsorted.splice(i, 1)[0] as Workspace;
