@@ -83,7 +83,11 @@ program
 
           // Verify local private dependencies are only used as devDependencies.
           if (dependency.private) {
-            console.error(`${name}: Move the local private ${key} package from ${dependencyType} to devDependencies.`);
+            console.error(
+              `${name}: Move the local private ${JSON.stringify(
+                key,
+              )} dependency from ${dependencyType} to devDependencies.`,
+            );
             process.exitCode ??= 1;
             continue;
           }
@@ -92,7 +96,7 @@ program
 
           if (!minVersion || !semver.eq(minVersion, dependency.version)) {
             console.error(
-              `${name}: Update the ${dependencyType}[${JSON.stringify(key)}] version range to make ${
+              `${name}: Update the ${JSON.stringify(key)} dependency version range to make ${
                 dependency.version
               } the lower bound.`,
             );
@@ -101,7 +105,7 @@ program
         }
       }
 
-      // Verify new package versions are unpublished.
+      // Verify new workspace versions are unpublished.
       if (await npm.isPublished(workspace.name, workspace.version)) {
         console.error(`${name}: Use an unpublished version.`);
         process.exitCode ??= 1;
@@ -149,12 +153,12 @@ program
     // Publish packages for all modified or unpublished workspaces.
     for (const [name, workspace] of workspaces) {
       if (workspace.private || (!workspace.modified && workspace.published)) {
-        console.log(`Skipping ${name}@${workspace.version} (already published).`);
+        console.log(`${name}: skipped v${workspace.version} (${workspace.private ? 'private' : 'published'}).`);
         continue;
       }
 
       process.stdout.write(
-        `Publishing ${name}@${workspace.version} (${workspace.modified ? 'modified' : 'unpublished'})...`,
+        `${name}: publishing v${workspace.version} (${workspace.modified ? 'modified' : 'unpublished'})...`,
       );
 
       try {

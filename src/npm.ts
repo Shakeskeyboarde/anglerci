@@ -33,7 +33,7 @@ const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Worksp
     ...(await spawn('npm', ['query', '.workspace']).assertSuccess().json()),
     // Root
     { ...(await spawn('npm', ['pkg', 'get']).assertSuccess().json()), location: '.' },
-  ].filter((workspace) => workspace.name && workspace.version && !workspace.private);
+  ].filter((workspace) => workspace.name && workspace.version);
 
   const names = new Set(all.map((workspace) => workspace.name));
   const unsorted: Workspace[] = [];
@@ -48,26 +48,19 @@ const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Worksp
     optionalDependencies = {},
     peerDependencies = {},
   } of all) {
-    if (private_) {
-      continue;
-    }
-
-    const modified = baseRef ? await git.isPathModified(baseRef, location) : true;
     const version = semver.parse(rawVersion);
 
     if (!version) {
       throw new Error(`Workspace "${name}" version is invalid (${rawVersion}).`);
     }
 
-    const published = private_ || (await isPublished(name, version));
-
     unsorted.push({
       location,
       name,
       version,
       private: private_,
-      modified,
-      published,
+      modified: baseRef ? await git.isPathModified(baseRef, location) : true,
+      published: private_ ? false : await isPublished(name, version),
       dependencies: Object.entries(dependencies).reduce<Record<string, string>>((result, [key, value]) => {
         return names.has(key) ? { ...result, [key]: value } : result;
       }, {}),
