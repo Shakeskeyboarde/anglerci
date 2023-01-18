@@ -66,7 +66,9 @@ const spawn = (command: string, args: string[]): SpawnedProcess => {
     },
     wait: () => successPromise ?? (successPromise = promise.then(({ success }) => success)),
     json: () => jsonPromise ?? (jsonPromise = self.text().then((text) => JSON.parse(text))),
-    text: () => textPromise ?? (textPromise = promise.then(({ buffer }) => buffer.toString('utf8').trim())),
+    text: () =>
+      textPromise ??
+      (textPromise = promise.then(({ buffer }) => buffer.toString('utf8').replace(/^(?:[\t ]*\n\r?)+|\s+$/g, ''))),
     lines: () => linesPromise ?? (linesPromise = self.text().then((text) => (text ? text.split(/\n\r?/g) : []))),
   };
 

@@ -19,12 +19,12 @@ const getFileAtRef = async (ref: string, filename: string): Promise<string> => {
   );
 };
 
-const isCommitted = async (): Promise<boolean> => {
+const getUncommitted = async (): Promise<string[]> => {
   const uncommitted = (await spawn('git', ['status', '-s', '--porcelain']).assertSuccess().lines())
     .map((line) => line.replace(/^.{2} /, ''))
     .filter((filename) => !IGNORED_FILES.includes(filename));
 
-  return uncommitted.length === 0;
+  return uncommitted;
 };
 
 const isPathModified = async (baseRef: string, path: string): Promise<boolean> => {
@@ -56,4 +56,4 @@ const fetch = async (ref?: string | null): Promise<void> => {
   }
 };
 
-export { createTag, fetch, getBaseRefTag, getFileAtRef, isCommitted, isPathModified };
+export { createTag, fetch, getBaseRefTag, getFileAtRef, getUncommitted, isPathModified };

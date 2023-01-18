@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.0.16
+
+### Fixes
+
+- Ignored files not working correctly for detecting uncommitted change and modifications.
+
+### Other
+
+- Print list of uncommitted files when uncommitted changes are detected.
+
 ## v0.0.15
 
 ### Chores

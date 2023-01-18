@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable max-lines */
 import * as semver from 'semver';
 
 import * as changelog from './changelog.js';
@@ -30,8 +31,10 @@ program
     process.chdir(await npm.getPrefix());
 
     // Verify all changes are committed.
-    if (!(await git.isCommitted())) {
+    const uncommitted = await git.getUncommitted();
+    if (uncommitted.length) {
       console.error('All changes must be committed.');
+      uncommitted.forEach((filename) => console.error(`  ${filename}`));
       process.exitCode ??= 1;
       return;
     }
@@ -130,8 +133,10 @@ program
     process.chdir(await npm.getPrefix());
 
     // Verify all changes are committed.
-    if (!(await git.isCommitted())) {
+    const uncommitted = await git.getUncommitted();
+    if (uncommitted.length) {
       console.error('All changes must be committed.');
+      uncommitted.forEach((filename) => console.error(`  ${filename}`));
       process.exitCode ??= 1;
       return;
     }
