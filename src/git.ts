@@ -39,4 +39,10 @@ const createTag = async (): Promise<void> => {
     .wait();
 };
 
-export { createTag, getBaseRefTag, getFileAtRef, isCommitted, isPathModified };
+const fetch = async (ref?: string | null): Promise<void> => {
+  if ((await spawn('git', ['fetch', '--unshallow']).wait()) && ref && (await spawn('git', ['checkout', ref]).wait())) {
+    await spawn('git', ['checkout', '-']).assertSuccess().wait();
+  }
+};
+
+export { createTag, fetch, getBaseRefTag, getFileAtRef, isCommitted, isPathModified };

@@ -20,6 +20,8 @@ const getPrefix = async (): Promise<string> => {
 };
 
 const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Workspace>> => {
+  await git.fetch(baseRef);
+
   const all: {
     location: string;
     name: string;
@@ -127,7 +129,7 @@ const getVersionDiff = async (
 };
 
 const isPublished = async (name: string, version: semver.SemVer): Promise<boolean> => {
-  return await spawn('npm', ['view', `${name}@${version}`, 'name']).success();
+  return await spawn('npm', ['view', `${name}@${version}`, 'name']).wait();
 };
 
 const publish = async (location: string): Promise<void> => {

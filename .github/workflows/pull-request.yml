@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [current]
+        node-version: [lts/*]
 
     steps:
       - name: Checkout
@@ -28,5 +28,8 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Pack
-        run: npm pack
+      - name: Build
+        run: npm run build
+
+      - name: Check
+        run: node lib/main.js catch

@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [main, next]
+    branches: [main]
 
 jobs:
   build:
@@ -10,7 +10,10 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [current]
+        node-version: [lts/*]
+
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -28,8 +31,8 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Pack
-        run: npm pack
+      - name: Build
+        run: npm run build
 
       # - name: Publish (CodeCov)
       #   if: github.ref == 'refs/heads/main'
@@ -42,14 +45,9 @@ jobs:
       - name: Publish (NPM)
         continue-on-error: true
         run: |
-          npm config --location project set //registry.npmjs.org/:_authToken '${NPM_TOKEN}'
-          if [ "$GITHUB_REF_NAME" == "main" ] && [ "$GITHUB_REF_TYPE" == "branch" ]; then
-            npm publish --access public --ignore-scripts *.tgz
-          else
-            npm publish --tag "$GITHUB_REF_NAME" --access public --ignore-scripts *.tgz
-          fi
-        env:
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+          npm config --location project set //registry.npmjs.org/:_authToken '${{secrets.NPM_TOKEN}}'
+          node lib/main.js catch
+          node lib/main.js release
 
       - name: Create Workspace Artifact
         if: ${{ always() }}

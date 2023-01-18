@@ -3,8 +3,7 @@ import { quote } from 'shell-quote';
 
 type SpawnedProcess = {
   assertSuccess: () => SpawnedProcess;
-  wait: () => Promise<void>;
-  success: () => Promise<boolean>;
+  wait: () => Promise<boolean>;
   json: <TType = any>() => Promise<TType>;
   text: () => Promise<string>;
 };
@@ -31,7 +30,6 @@ class SpawnError extends Error {
 
 const spawn = (command: string, args: string[]): SpawnedProcess => {
   let assert = false;
-  let waitPromise: Promise<void> | undefined;
   let successPromise: Promise<boolean> | undefined;
   let textPromise: Promise<string> | undefined;
   let jsonPromise: Promise<any> | undefined;
@@ -64,8 +62,7 @@ const spawn = (command: string, args: string[]): SpawnedProcess => {
       assert = true;
       return self;
     },
-    wait: () => waitPromise ?? (waitPromise = promise.then(() => undefined)),
-    success: () => successPromise ?? (successPromise = promise.then(({ success }) => success)),
+    wait: () => successPromise ?? (successPromise = promise.then(({ success }) => success)),
     json: () => jsonPromise ?? (jsonPromise = self.text().then((text) => JSON.parse(text))),
     text: () => textPromise ?? (textPromise = promise.then(({ buffer }) => buffer.toString('utf8').trim())),
   };
