@@ -5,6 +5,7 @@
 ### Fixes
 
 - Ignored files not working correctly for detecting uncommitted change and modifications.
+- Testing modifications to CHANGELOG.md without code changes.
 
 ### Other
 
@@ -15,7 +16,6 @@
 ### Chores
 
 - Serialize build pipeline runs using the github actions `concurrency` setting.
-- Testing modifications to CHANGELOG.md without code changes.
 
 ## v0.0.14
 
