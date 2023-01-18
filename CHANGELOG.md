@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.0.15
+
+### Chores
+
+- Serialize build pipeline runs using the github actions `concurrency` setting.
+
 ## v0.0.14
 
 ### Fixes

@@ -12,6 +12,9 @@ jobs:
       matrix:
         node-version: [lts/*]
 
+    concurrency:
+      group: ${{ github.workflow }}
+
     permissions:
       contents: write
 
