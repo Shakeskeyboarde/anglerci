@@ -5,7 +5,6 @@
 ### Fixes
 
 - Published status was accidentally double checked.
-- Testing modifications to CHANGELOG.md without code changes.
 
 ## v0.0.16
 
