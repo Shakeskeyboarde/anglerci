@@ -1,0 +1,3 @@
+tsc --noEmit
+eslint --max-warnings=0 src --ignore-pattern "__*"
+jest --no-cache --passWithNoTests

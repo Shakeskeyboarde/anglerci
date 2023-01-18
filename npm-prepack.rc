@@ -1,0 +1,1 @@
+del-cli lib && tsc --project tsconfig.build.json && chmodx --package
