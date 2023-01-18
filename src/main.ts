@@ -27,8 +27,15 @@ program
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .action(async ({ baseRef = null }) => {
+    await git.fetchUnshallow();
+
     baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
+    console.log(baseRef);
     process.chdir(await npm.getPrefix());
+
+    if (baseRef) {
+      await git.fetchRef(baseRef);
+    }
 
     // Verify all changes are committed.
     const uncommitted = await git.getUncommitted();
@@ -131,8 +138,14 @@ program
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .action(async ({ baseRef = null, tag }) => {
+    await git.fetchUnshallow();
+
     baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
     process.chdir(await npm.getPrefix());
+
+    if (baseRef) {
+      await git.fetchRef(baseRef);
+    }
 
     // Verify all changes are committed.
     const uncommitted = await git.getUncommitted();

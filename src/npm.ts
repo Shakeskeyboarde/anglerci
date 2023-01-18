@@ -20,8 +20,6 @@ const getPrefix = async (): Promise<string> => {
 };
 
 const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Workspace>> => {
-  await git.fetch(baseRef);
-
   const all: {
     location: string;
     name: string;
