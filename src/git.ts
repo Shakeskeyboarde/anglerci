@@ -43,4 +43,8 @@ const fetchUnshallow = async (): Promise<void> => {
   await spawn('git', ['fetch', '--unshallow']).wait();
 };
 
-export { createTag, fetchUnshallow, getBaseRefTag, getFileAtRef, isCommitted, isPathModified };
+const fetchRef = async (ref: string): Promise<void> => {
+  await spawn('git', ['fetch', 'origin', ref, '--depth=1']).wait();
+};
+
+export { createTag, fetchRef, fetchUnshallow, getBaseRefTag, getFileAtRef, isCommitted, isPathModified };
