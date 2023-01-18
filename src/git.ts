@@ -22,7 +22,9 @@ const isCommitted = async (): Promise<boolean> => {
 };
 
 const isPathModified = async (baseRef: string, path: string): Promise<boolean> => {
-  const modifiedFilesOutput = await spawn('git', ['diff', '--name-only', baseRef, '--', path]).assertSuccess().text();
+  const modifiedFilesOutput = await spawn('git', ['diff', '--name-only', `${baseRef}..HEAD`, '--', path])
+    .assertSuccess()
+    .text();
 
   // At least one file is modified that is not CHANGELOG.md
   return modifiedFilesOutput !== '' && modifiedFilesOutput !== 'CHANGELOG.md';
@@ -37,4 +39,8 @@ const createTag = async (): Promise<void> => {
     .wait();
 };
 
-export { createTag, getBaseRefTag, getFileAtRef, isCommitted, isPathModified };
+const fetchUnshallow = async (): Promise<void> => {
+  await spawn('git', ['fetch', '--unshallow']).wait();
+};
+
+export { createTag, fetchUnshallow, getBaseRefTag, getFileAtRef, isCommitted, isPathModified };
