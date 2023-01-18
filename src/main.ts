@@ -42,7 +42,7 @@ program
     const workspaces = await npm.getWorkspaces(baseRef);
 
     if (
-      [...workspaces.values()].every((workspace) => workspace.private || (!workspace.modified && !workspace.published))
+      [...workspaces.values()].every((workspace) => workspace.private || (!workspace.modified && workspace.published))
     ) {
       console.log('No modified or unpublished workspaces.');
       return;
@@ -109,7 +109,7 @@ program
       }
 
       // Verify new workspace versions are unpublished.
-      if (await npm.isPublished(workspace.name, workspace.version)) {
+      if (workspace.published) {
         console.error(`${name}: Use an unpublished version.`);
         process.exitCode ??= 1;
       }

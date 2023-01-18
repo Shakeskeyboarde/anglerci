@@ -138,4 +138,4 @@ const publish = async (location: string): Promise<void> => {
     .wait();
 };
 
-export { type Workspace, getPrefix, getVersionDiff, getWorkspaces, isPublished, publish };
+export { type Workspace, getPrefix, getVersionDiff, getWorkspaces, publish };

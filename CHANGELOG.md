@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.0.17
+
+### Fixes
+
+- Published status was accidentally double checked.
+
 ## v0.0.16
 
 ### Fixes
