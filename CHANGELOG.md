@@ -5,6 +5,7 @@
 ### Chores
 
 - Serialize build pipeline runs using the github actions `concurrency` setting.
+- Testing modifications to CHANGELOG.md without code changes.
 
 ## v0.0.14
 
