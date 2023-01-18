@@ -12,6 +12,9 @@ jobs:
       matrix:
         node-version: [lts/*]
 
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
