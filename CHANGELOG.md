@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.5
+
+### Fixes
+
+- Print message when no base-ref is detected.
+
 ## v1.2.4
 
 ### Fixes

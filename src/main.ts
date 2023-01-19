@@ -33,6 +33,10 @@ program
     await git.fetchAll();
     baseRef ||= await git.getBaseRef();
 
+    if (!baseRef) {
+      console.log('No base-ref detected. Assuming all workspaces are modified.');
+    }
+
     // Verify all changes are committed.
     if (uncommittedCheck) {
       const uncommitted = await git.getUncommitted();
@@ -147,6 +151,10 @@ program
     process.chdir(await npm.getPrefix());
     await git.fetchAll();
     baseRef ||= await git.getBaseRef();
+
+    if (!baseRef) {
+      console.log('No base-ref detected. Assuming all workspaces are modified.');
+    }
 
     // Verify all changes are committed.
     if (uncommittedCheck) {
