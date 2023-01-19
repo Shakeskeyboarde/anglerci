@@ -92,6 +92,15 @@ Additional files can be ignored when detecting workspace modifications by adding
 }
 ```
 
+## Prerelease
+
+To create a prerelease, include a [prerelease](https://semver.org/#spec-item-9) part in a `package.json` version (eg. `1.0.0-prerelease.0`). When a workspace has a prerelease version, the following things happen:
+
+- No `CHANGELOG.md` section is required for the prerelease version.
+- A NPM non-latest publish tag (`--tag=prerelease`) is set if the `publishConfig.tag` option in the `package.json` file is empty.
+
+To enforce prerelease versions (eg. from unprotected branches), pass the `--prerelease` option to Angler CI. It will refuse to release non-prerelease versions.
+
 ## Git Pre-Push Hook
 
 The `catch` command can also be used as a Git `pre-push` hook. This is not a replacement for a PR pipeline check, but it can help to call out potential problems earlier.

@@ -13,13 +13,9 @@ const getBaseRefTag = async (): Promise<string | null> => {
 };
 
 const getFileAtRef = async (ref: string, filename: string): Promise<string> => {
-  const diff = await spawn('git', ['show', `${ref}:${filename}`])
+  return await spawn('git', ['show', `${ref}:${filename}`])
     .assertSuccess()
     .text();
-
-  return diff.replace(/^(.)(.*(?:\n\r?|$))/gmu, (_, prefix, suffix) =>
-    prefix !== ' ' && prefix !== '-' ? '' : suffix,
-  );
 };
 
 const getUncommitted = async (): Promise<string[]> => {

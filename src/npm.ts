@@ -54,12 +54,8 @@ const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Worksp
       throw new Error(`Workspace "${name}" version is invalid (${rawVersion}).`);
     }
 
-    const ignoreRaw = await spawn('npm', [
-      ...(location === '.' ? [] : ['-w', `./${location}`]),
-      'pkg',
-      'get',
-      'config.anglerci.ignore',
-    ])
+    const workspaceOptions = location === '.' ? [] : ['-w', `./${location}`];
+    const ignoreRaw = await spawn('npm', [...workspaceOptions, 'pkg', 'get', 'config.anglerci.ignore'])
       .assertSuccess()
       .json();
     const ignore = Array.isArray(ignoreRaw) ? ignoreRaw : typeof ignoreRaw === 'string' ? [ignoreRaw] : [];
@@ -112,13 +108,11 @@ const getVersionDiff = async (
   location: string,
   current: semver.SemVer,
 ): Promise<semver.ReleaseType | null> => {
-  const previousVersion =
-    semver.parse(
-      await git
-        .getFileAtRef(baseRef, `${location}/package.json`)
-        .then((text) => JSON.parse(text).version ?? '')
-        .catch(() => ''),
-    ) ?? new semver.SemVer('0.0.0');
+  const previousPackageText = await git.getFileAtRef(baseRef, `${location}/package.json`);
+  const previousPackage: { version?: string } = await Promise.resolve()
+    .then(() => JSON.parse(previousPackageText))
+    .catch(() => ({}));
+  const previousVersion = semver.parse(previousPackage.version) ?? new semver.SemVer('0.0.0');
 
   if (semver.lte(current, previousVersion)) {
     return null;
@@ -140,8 +134,20 @@ const isPublished = async (name: string, version: semver.SemVer): Promise<boolea
   return await spawn('npm', ['view', `${name}@${version}`, 'name']).wait();
 };
 
-const publish = async (location: string): Promise<void> => {
-  await spawn('npm', ['--verbose', ...(location === '.' ? [] : ['-w', `./${location}`]), 'publish'])
+const publish = async (location: string, prerelease: boolean, dryRun: boolean): Promise<void> => {
+  const workspaceOptions = location === '.' ? [] : ['-w', `./${location}`];
+  const tagOptions: string[] = [];
+  const dryRunOptions = dryRun ? ['--dry-run'] : [];
+
+  if (prerelease) {
+    const publishConfigTag = await spawn('npm', ['pkg', 'get', 'publishConfig.tag']).assertSuccess().json();
+
+    if (typeof publishConfigTag !== 'string' || !publishConfigTag) {
+      tagOptions.push('--tag=prerelease');
+    }
+  }
+
+  await spawn('npm', ['--verbose', ...workspaceOptions, 'publish', ...tagOptions, ...dryRunOptions])
     .assertSuccess()
     .wait();
 };
