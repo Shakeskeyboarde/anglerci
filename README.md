@@ -28,15 +28,15 @@ Publish packages for all modified or unpublished workspaces. This will also crea
 npx angler release
 ```
 
-AnglerCI will use NPM workspaces if enabled. The project root is also considered to be a "workspace" (the only one if workspaces are disabled). Only workspaces which are _non-private_ will be considered. Yarn and other workspace providers are not supported at this time.
+NPM workspaces are used if enabled. The project root is also considered to be a "workspace" (the only one if workspaces are disabled). Only workspaces which are _non-private_ will be considered. Yarn and other workspace providers are not supported at this time.
 
-Which workspaces modifications are detected by diffing each workspace directory against a base-ref. The base-ref is read from the `--base-ref` CLI option, `GITHUB_BASE_REF` environment variable, or the most recent Git annotated-tag. If no base-ref can be determined, then all workspaces are considered modified.
+Workspaces with modifications are detected by diffing each workspace directory against a base-ref. The base-ref is read from the `--base-ref` CLI option, `GITHUB_BASE_REF` environment variable, or the most recent Git annotated-tag. If no base-ref can be determined, then all workspaces are considered modified.
 
-Which workspaces are unpublished is determined by checking the configured NPM registry to see if the current `package.json` version exists.
+Workspaces which are unpublished are detected by checking whether the current `package.json` version exists the configured NPM registry.
 
 ## How it works
 
-AnglerCI works in two phases:
+There are two phases:
 
 1. `catch`
    - Verify all changes are committed.
@@ -61,7 +61,7 @@ The `release` command also creates a Git annotated-tag (`release-<timestamp>`), 
 
 ## Why it works this way
 
-AnglerCI expects developers to version and update the changelog directly, and it treats the PR as the moment of truth (instead of each commit). It catches things you might have forgotten. It does not try to do these things for you. At the end of they day, there is no substitute for agreed-upon conventions and peer review to ensure the quality of commit and changelog messaging.
+Developers are expected to update versions and changelogs as part of their regular commit work. The PR is treated as the moment of truth (instead of each commit). The tool only catches things you might have forgotten. It does not try to do these things for you. At the end of they day, there is no substitute for agreed-upon conventions and peer review to ensure the quality of commit and changelog messaging.
 
 Solutions like [conventional commits](https://www.conventionalcommits.org) seem like a good idea, but (IMO) generally don't decrease the amount of work, speed up iteration, reduce mistakes, or improve the quality of commit messages.
 
@@ -99,7 +99,7 @@ To create a prerelease, include a [prerelease](https://semver.org/#spec-item-9) 
 - No `CHANGELOG.md` section is required for the prerelease version.
 - A NPM non-latest publish tag (`--tag=prerelease`) is set if the `publishConfig.tag` option in the `package.json` file is empty.
 
-To enforce prerelease versions (eg. from unprotected branches), pass the `--prerelease` option to AnglerCI. It will refuse to release non-prerelease versions.
+Use the `--prerelease` option to enforce prerelease versions (eg. from unprotected branches).
 
 ## Git Pre-Push Hook
 
@@ -111,8 +111,8 @@ The recommended approach is to use [Husky](https://www.npmjs.com/package/husky),
    - `npm i -D husky`
    - `npm pkg set scripts.prepare="husky install"`
    - `npm run prepare`
-2. Add the AnglerCI pre-push hook.
+2. Add the pre-push hook.
    - `npx husky add .husky/pre-push "angler catch"`
    - `git add .husky/pre-push`
 
-Now the AnglerCI `catch` command will run whenever you use the `git push` command.
+Now the `catch` command will run whenever you use the Git `push` command.

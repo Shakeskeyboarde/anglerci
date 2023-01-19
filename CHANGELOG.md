@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.2
+
+### Docs
+
+- README.md polish.
+
 ## v1.2.1
 
 ### Docs
