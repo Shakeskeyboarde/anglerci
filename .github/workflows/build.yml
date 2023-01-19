@@ -48,9 +48,11 @@ jobs:
       - name: Publish (NPM)
         continue-on-error: true
         run: |
-          npm config --location project set //registry.npmjs.org/:_authToken '${{secrets.NPM_TOKEN}}'
+          npm config --location project set //registry.npmjs.org/:_authToken '${NPM_TOKEN}'
           node lib/main.js catch
           node lib/main.js release
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: Create Workspace Artifact
         if: ${{ always() }}

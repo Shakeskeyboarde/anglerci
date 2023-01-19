@@ -3,7 +3,7 @@
   "description": "A validation-only approach to releasing projects which use NPM and Git.",
   "author": "Chris Ackerman <chris@topher.land>",
   "license": "ISC",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Shakeskeyboarde/anglerci.git"
@@ -48,7 +48,7 @@
   "type": "module",
   "sideEffects": false,
   "scripts": {
-    "test": "rc npm-test -o",
+    "test": "rc npm-test -o && npm start -- catch --no-uncommitted-check && npm start -- release --dry-run --no-uncommitted-check",
     "build": "rc npm-build",
     "start": "npm run build && node lib/main.js",
     "modernize": "npx npm-check-updates -i --format group"

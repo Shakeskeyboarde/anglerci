@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.0
+
+### Features
+
+- [#4](https://github.com/Shakeskeyboarde/anglerci/issues/4): Add publishable packages to the release tag.
+- Add `--no-uncommitted-check` option.
+
+### CI
+
+- [#3](https://github.com/Shakeskeyboarde/anglerci/issues/3): Moved NPM_TOKEN to a variable instead of writing it to the .npmrc file.
+
 ## v1.1.0
 
 ### Features

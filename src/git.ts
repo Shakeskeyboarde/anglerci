@@ -1,4 +1,5 @@
 import picomatch from 'picomatch';
+import type * as semver from 'semver';
 
 import { spawn } from './spawn.js';
 
@@ -18,9 +19,9 @@ const getFileAtRef = async (ref: string, filename: string): Promise<string> => {
     .text();
 };
 
-const getUncommitted = async (): Promise<string[]> => {
+const getUncommitted = async (path = '.'): Promise<string[]> => {
   const isIgnored = picomatch(IGNORE_UNCOMMITTED_FILES, { cwd: '/', basename: true });
-  const uncommitted = (await spawn('git', ['status', '-s', '--porcelain']).assertSuccess().lines())
+  const uncommitted = (await spawn('git', ['status', '-s', '--porcelain', path]).assertSuccess().lines())
     .map((line) => '/' + line.replace(/^.{2} /, ''))
     .filter((filename) => !isIgnored(filename));
 
@@ -36,20 +37,31 @@ const isPathModified = async (baseRef: string, path: string, ignore: string[]): 
   )
     .map((line) => '/' + line)
     .filter((filename) => !isIgnored(filename));
+  const uncommitted = await getUncommitted(path);
 
-  return modified.length > 0;
+  return modified.length > 0 || uncommitted.length > 0;
 };
 
-const createTag = async (): Promise<void> => {
-  const tagName = `release-${Date.now()}`;
+const createTag = async (workspaces: { name: string; version: semver.SemVer }[]): Promise<void> => {
+  const name = `release-${Date.now()}`;
 
   if (!(await spawn('git', ['config', 'user.name']).wait())) {
     await spawn('git', ['config', 'user.name', 'anglerci']).assertSuccess().wait();
     await spawn('git', ['config', 'user.email', 'anglerci@example.com']).assertSuccess().wait();
   }
 
-  await spawn('git', ['tag', '-a', tagName, '-m', 'Released by Angler CI.']).assertSuccess().wait();
-  await spawn('git', ['push', '--no-verify', 'origin', `refs/tags/${tagName}`])
+  const message = `
+Released by Angler CI:
+
+${workspaces.map((workspace) => `- ${workspace.name}@${workspace.version}`).join('\n')}
+
+NOTE: The above packages were publishable at the time of the release.
+      However, it's possible they were not successfully published after
+      the tag was created.
+    `.trim();
+
+  await spawn('git', ['tag', '-a', name, '-m', message]).assertSuccess().wait();
+  await spawn('git', ['push', '--no-verify', 'origin', `refs/tags/${name}`])
     .assertSuccess()
     .wait();
 };

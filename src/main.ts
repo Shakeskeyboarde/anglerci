@@ -25,9 +25,10 @@ program
   .description('Verify that a changeset is ready for release.')
   .option('-b, --base-ref <ref>', 'The Git base reference for detecting modified workspaces')
   .option('--prerelease', 'Enforce prerelease versions')
+  .option('--no-uncommitted-check', 'Disable uncommitted changes check')
   .allowExcessArguments(false)
   .allowUnknownOption(false)
-  .action(async ({ baseRef = null, prerelease = false }) => {
+  .action(async ({ baseRef = null, prerelease = false, uncommittedCheck }) => {
     await git.fetchUnshallow();
 
     baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
@@ -38,12 +39,15 @@ program
     }
 
     // Verify all changes are committed.
-    const uncommitted = await git.getUncommitted();
-    if (uncommitted.length) {
-      console.error('All changes must be committed.');
-      uncommitted.forEach((filename) => console.error(`  ${filename}`));
-      process.exitCode ??= 1;
-      return;
+    if (uncommittedCheck) {
+      const uncommitted = await git.getUncommitted();
+
+      if (uncommitted.length) {
+        console.error('All changes must be committed.');
+        uncommitted.forEach((filename) => console.error(`  ${filename}`));
+        process.exitCode ??= 1;
+        return;
+      }
     }
 
     const workspaces = await npm.getWorkspaces(baseRef);
@@ -137,11 +141,12 @@ program
   .description('Publish packages for all modified or unpublished workspaces.')
   .option('-b, --base-ref <ref>', 'The Git base reference for detecting modified workspaces')
   .option('--prerelease', 'Enforce prerelease versions')
-  .option('--no-tag', 'Disable commit tagging')
   .option('--dry-run', 'Disable commit tagging and publishing')
+  .option('--no-tag', 'Disable commit tagging')
+  .option('--no-uncommitted-check', 'Disable uncommitted changes check')
   .allowExcessArguments(false)
   .allowUnknownOption(false)
-  .action(async ({ baseRef = null, prerelease = false, tag, dryRun = false }) => {
+  .action(async ({ baseRef = null, prerelease = false, tag, dryRun = false, uncommittedCheck }) => {
     await git.fetchUnshallow();
 
     baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
@@ -152,12 +157,15 @@ program
     }
 
     // Verify all changes are committed.
-    const uncommitted = await git.getUncommitted();
-    if (uncommitted.length) {
-      console.error('All changes must be committed.');
-      uncommitted.forEach((filename) => console.error(`  ${filename}`));
-      process.exitCode ??= 1;
-      return;
+    if (uncommittedCheck) {
+      const uncommitted = await git.getUncommitted();
+
+      if (uncommitted.length) {
+        console.error('All changes must be committed.');
+        uncommitted.forEach((filename) => console.error(`  ${filename}`));
+        process.exitCode ??= 1;
+        return;
+      }
     }
 
     const workspaces = await npm.getWorkspaces(baseRef);
@@ -172,7 +180,7 @@ program
 
     // Tag the commit which is being released.
     if (tag && !dryRun) {
-      await git.createTag();
+      await git.createTag(publishable);
     }
 
     // Publish packages for all modified or unpublished workspaces.
