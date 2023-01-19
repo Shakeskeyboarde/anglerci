@@ -29,14 +29,9 @@ program
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .action(async ({ baseRef = null, prerelease = false, uncommittedCheck }) => {
-    await git.fetchUnshallow();
-
-    baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
     process.chdir(await npm.getPrefix());
-
-    if (baseRef) {
-      await git.fetchRef(baseRef);
-    }
+    await git.fetchAll();
+    baseRef ||= await git.getBaseRef();
 
     // Verify all changes are committed.
     if (uncommittedCheck) {
@@ -110,7 +105,9 @@ program
             continue;
           }
 
-          const minVersion = semver.minVersion(value);
+          const minVersion = await Promise.resolve()
+            .then(() => semver.minVersion(value))
+            .catch(() => null);
 
           if (!minVersion || !semver.eq(minVersion, dependency.version)) {
             console.error(
@@ -147,14 +144,9 @@ program
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .action(async ({ baseRef = null, prerelease = false, tag, dryRun = false, uncommittedCheck }) => {
-    await git.fetchUnshallow();
-
-    baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
     process.chdir(await npm.getPrefix());
-
-    if (baseRef) {
-      await git.fetchRef(baseRef);
-    }
+    await git.fetchAll();
+    baseRef ||= await git.getBaseRef();
 
     // Verify all changes are committed.
     if (uncommittedCheck) {
