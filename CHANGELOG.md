@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.1
+
+### Docs
+
+- Removed the space between "Angler" and "CI". The project name is officially "AnglerCI" (no space).
+- Various README.md improvements.
+
+### Internal
+
+- Fetch tags (try, but ignore errors) before resolving modifications.
+
 ## v1.2.0
 
 ### Features
