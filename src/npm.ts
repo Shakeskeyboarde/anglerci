@@ -54,12 +54,22 @@ const getWorkspaces = async (baseRef: string | null): Promise<Map<string, Worksp
       throw new Error(`Workspace "${name}" version is invalid (${rawVersion}).`);
     }
 
+    const ignoreRaw = await spawn('npm', [
+      ...(location === '.' ? [] : ['-w', `./${location}`]),
+      'pkg',
+      'get',
+      'config.anglerci.ignore',
+    ])
+      .assertSuccess()
+      .json();
+    const ignore = Array.isArray(ignoreRaw) ? ignoreRaw : typeof ignoreRaw === 'string' ? [ignoreRaw] : [];
+
     unsorted.push({
       location,
       name,
       version,
       private: private_,
-      modified: baseRef ? await git.isPathModified(baseRef, location) : true,
+      modified: baseRef ? await git.isPathModified(baseRef, location, ignore) : true,
       published: private_ ? false : await isPublished(name, version),
       dependencies: Object.entries(dependencies).reduce<Record<string, string>>((result, [key, value]) => {
         return names.has(key) ? { ...result, [key]: value } : result;

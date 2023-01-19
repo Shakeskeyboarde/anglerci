@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.0
+
+### Feature
+
+- Added file modification ignoring through `config.anglerci.ignore` array option in the `package.json` file.
+
 ## v0.0.19
 
 ### Chore

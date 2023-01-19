@@ -1,6 +1,9 @@
+import picomatch from 'picomatch';
+
 import { spawn } from './spawn.js';
 
-const IGNORED_FILES = ['.npmrc', 'CHANGELOG.md'];
+const IGNORE_UNCOMMITTED_FILES = ['.npmrc'];
+const IGNORE_MODIFIED_FILES = ['.npmrc', 'CHANGELOG.md'];
 
 const getBaseRefTag = async (): Promise<string | null> => {
   return await spawn('git', ['describe', '--abbrev=0', '--first-parent'])
@@ -20,19 +23,23 @@ const getFileAtRef = async (ref: string, filename: string): Promise<string> => {
 };
 
 const getUncommitted = async (): Promise<string[]> => {
+  const isIgnored = picomatch(IGNORE_UNCOMMITTED_FILES, { cwd: '/', basename: true });
   const uncommitted = (await spawn('git', ['status', '-s', '--porcelain']).assertSuccess().lines())
-    .map((line) => line.replace(/^.{2} /, ''))
-    .filter((filename) => !IGNORED_FILES.includes(filename));
+    .map((line) => '/' + line.replace(/^.{2} /, ''))
+    .filter((filename) => !isIgnored(filename));
 
   return uncommitted;
 };
 
-const isPathModified = async (baseRef: string, path: string): Promise<boolean> => {
+const isPathModified = async (baseRef: string, path: string, ignore: string[]): Promise<boolean> => {
+  const isIgnored = picomatch([...ignore, ...IGNORE_MODIFIED_FILES], { cwd: '/', basename: true });
   const modified = (
     await spawn('git', ['diff', '--name-only', `${baseRef}..HEAD`, '--', path])
       .assertSuccess()
       .lines()
-  ).filter((filename) => !IGNORED_FILES.includes(filename));
+  )
+    .map((line) => '/' + line)
+    .filter((filename) => !isIgnored(filename));
 
   return modified.length > 0;
 };

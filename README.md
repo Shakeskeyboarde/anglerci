@@ -76,6 +76,22 @@ Cons:
 
 - Simultaneous PRs may result in version "collisions". When a PR is resolved and merged, the effective "previous" version of all following PRs is updated. Updates may be required to these remaining PRs to re-increment version numbers. This is a minor task, and merging upstream changes will usually be required in follow-up PRs anyway.
 
+## Ignoring Modifications
+
+The `CHANGELOG.md` and `.npmrc` files are _always_ ignored.
+
+Additional files can be ignored when detecting workspace modifications by adding globs to the `config.anglerci.ignore` array in `package.json` files. Matching is done with the [picomatch](https://www.npmjs.com/package/picomatch) package, and works similarly to `.gitignore` rules.
+
+```json
+{
+  "config": {
+    "anglerci": {
+      "ignore": ["*.md"]
+    }
+  }
+}
+```
+
 ## Git Pre-Push Hook
 
 The `catch` command can also be used as a Git `pre-push` hook. This is not a replacement for a PR pipeline check, but it can help to call out potential problems earlier.
