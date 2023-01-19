@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.2.4
+
+### Fixes
+
+- Local `file:...` dependencies caused semver to throw.
+- Qualify `$GITHUB_BASE_REF` as `origin/$GITHUB_BASE_REF`
+- QUalify `git describe` tag as `refs/tags/<tag>`
+
 ## v1.2.3
 
 ### Fixes

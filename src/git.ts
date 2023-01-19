@@ -6,10 +6,15 @@ import { spawn } from './spawn.js';
 const IGNORE_UNCOMMITTED_FILES = ['.npmrc'];
 const IGNORE_MODIFIED_FILES = ['.npmrc', 'CHANGELOG.md'];
 
-const getBaseRefTag = async (): Promise<string | null> => {
+const getBaseRef = async (): Promise<string | null> => {
+  if (process.env.GITHUB_BASE_REF) {
+    return `origin/${process.env.GITHUB_BASE_REF}`;
+  }
+
   return await spawn('git', ['describe', '--abbrev=0', '--first-parent'])
     .assertSuccess()
     .text()
+    .then((value) => `refs/tags/${value}`)
     .catch(() => null);
 };
 
@@ -66,15 +71,9 @@ NOTE: The above packages were publishable at the time of the release.
     .wait();
 };
 
-const fetchUnshallow = async (): Promise<void> => {
+const fetchAll = async (): Promise<void> => {
   await spawn('git', ['fetch', '--unshallow']).wait();
-  await spawn('git', ['fetch', '--tags']).wait();
+  await spawn('git', ['fetch', '--all']).wait();
 };
 
-const fetchRef = async (ref: string): Promise<void> => {
-  if (await spawn('git', ['checkout', ref]).wait()) {
-    await spawn('git', ['checkout', '-']).assertSuccess().wait();
-  }
-};
-
-export { createTag, fetchRef, fetchUnshallow, getBaseRefTag, getFileAtRef, getUncommitted, isPathModified };
+export { createTag, fetchAll, getBaseRef, getFileAtRef, getUncommitted, isPathModified };
