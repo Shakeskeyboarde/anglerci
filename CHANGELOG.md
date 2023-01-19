@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.0.19
+
+### Chore
+
+- Removed debug logs.
+
 ## v0.0.18
 
 ### Fixes

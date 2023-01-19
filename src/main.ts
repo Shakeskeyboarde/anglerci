@@ -30,7 +30,6 @@ program
     await git.fetchUnshallow();
 
     baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
-    console.log(baseRef);
     process.chdir(await npm.getPrefix());
 
     if (baseRef) {
