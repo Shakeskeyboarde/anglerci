@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0
+
+### Major Release
+
+- Promoting to v1.0.0
+
 ## v0.1.0
 
 ### Feature
