@@ -53,7 +53,7 @@ const createTag = async (workspaces: { name: string; version: semver.SemVer }[])
   const message = `
 Released by AnglerCI
 
-${workspaces.map((workspace) => `- ${workspace.name}@${workspace.version}`).join('\n')}
+${workspaces.map((workspace) => `+ ${workspace.name}@${workspace.version}`).join('\n')}
 
 NOTE: The above packages were publishable at the time of the release.
       However, it's possible they were not successfully published after

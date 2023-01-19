@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.3
+
+### Fixes
+
+- Change git tag message list-item prefix from `-` to `+` so that GitHub doesn't reformat them oddly.
+
 ## v1.2.2
 
 ### Docs
