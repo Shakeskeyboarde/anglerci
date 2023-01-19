@@ -173,7 +173,9 @@ program
     // Publish packages for all modified or unpublished workspaces.
     for (const [name, workspace] of workspaces) {
       if (workspace.private || (!workspace.modified && workspace.published)) {
-        console.log(`${name}: skipped v${workspace.version} (${workspace.private ? 'private' : 'published'}).`);
+        console.log(
+          `${name}: skipped v${workspace.version} (${workspace.private ? 'private' : 'unmodified, published'}).`,
+        );
         continue;
       }
 

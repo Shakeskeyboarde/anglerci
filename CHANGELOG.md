@@ -1,11 +1,16 @@
 # Changelog
 
+## v0.0.18
+
+### Fixes
+
+- Fixed base-ref from tag not detected because of shallow fetch.
+
 ## v0.0.17
 
 ### Fixes
 
 - Published status was accidentally double checked.
-- Testing changelog only releases.
 
 ## v0.0.16
 
