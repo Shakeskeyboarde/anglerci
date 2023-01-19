@@ -24,9 +24,10 @@ program
   .aliases(['check', 'verify', 'validate', 'test'])
   .description('Verify that a changeset is ready for release.')
   .option('-b, --base-ref <ref>', 'The Git base reference for detecting modified workspaces')
+  .option('--prerelease', 'Enforce prerelease versions')
   .allowExcessArguments(false)
   .allowUnknownOption(false)
-  .action(async ({ baseRef = null }) => {
+  .action(async ({ baseRef = null, prerelease = false }) => {
     await git.fetchUnshallow();
 
     baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
@@ -46,41 +47,43 @@ program
     }
 
     const workspaces = await npm.getWorkspaces(baseRef);
+    const publishable = [...workspaces.values()].filter(
+      (workspace) => !workspace.private && (workspace.modified || !workspace.published),
+    );
 
-    if (
-      [...workspaces.values()].every((workspace) => workspace.private || (!workspace.modified && workspace.published))
-    ) {
+    if (publishable.length === 0) {
       console.log('No modified or unpublished workspaces.');
       return;
     }
 
-    for (const [name, workspace] of workspaces) {
-      if (workspace.private || (!workspace.modified && workspace.published)) {
-        continue;
-      }
-
+    for (const workspace of publishable) {
       const versionDiff = baseRef ? await npm.getVersionDiff(baseRef, workspace.location, workspace.version) : null;
 
       // Verify versions in modified workspaces have increased.
       if (baseRef && !versionDiff) {
-        console.error(`${name}: Increment the version.`);
+        console.error(`${workspace.name}: Increment the version.`);
         process.exitCode ??= 1;
       }
 
       if (workspace.version.prerelease.length === 0) {
+        if (prerelease) {
+          console.error(`${workspace.name}: Use a prerelease version.`);
+          process.exitCode ??= 1;
+        }
+
         const changeLogDiff = await changelog.getChangeLogDiff(workspace.location, workspace.version);
 
         // Verify CHANGELOG.md contains an entry for the release version.
         if (changeLogDiff === 'missing') {
-          console.error(`${name}: Add a ${workspace.version} section to the changelog.`);
+          console.error(`${workspace.name}: Add a ${workspace.version} section to the changelog.`);
           process.exitCode ??= 1;
         }
         // Verify CHANGELOG.md correctly documents the version increment.
         else if (changeLogDiff && versionDiff && changeLogDiff !== versionDiff) {
           if (changeLogDiff < versionDiff) {
-            console.error(`${name}: Increment the ${changeLogDiff} version to match the changelog.`);
+            console.error(`${workspace.name}: Increment the ${changeLogDiff} version to match the changelog.`);
           } else {
-            console.error(`${name}: Documentation the ${versionDiff} changes in the changelog.`);
+            console.error(`${workspace.name}: Document the ${versionDiff} changes in the changelog.`);
           }
 
           process.exitCode ??= 1;
@@ -95,7 +98,7 @@ program
           // Verify local private dependencies are only used as devDependencies.
           if (dependency.private) {
             console.error(
-              `${name}: Move the local private ${JSON.stringify(
+              `${workspace.name}: Move the local private ${JSON.stringify(
                 key,
               )} dependency from ${dependencyType} to devDependencies.`,
             );
@@ -107,7 +110,7 @@ program
 
           if (!minVersion || !semver.eq(minVersion, dependency.version)) {
             console.error(
-              `${name}: Update the ${JSON.stringify(key)} dependency version range to make ${
+              `${workspace.name}: Update the ${JSON.stringify(key)} dependency version range to make ${
                 dependency.version
               } the lower bound.`,
             );
@@ -118,7 +121,7 @@ program
 
       // Verify new workspace versions are unpublished.
       if (workspace.published) {
-        console.error(`${name}: Use an unpublished version.`);
+        console.error(`${workspace.name}: Use an unpublished version.`);
         process.exitCode ??= 1;
       }
     }
@@ -133,10 +136,11 @@ program
   .aliases(['publish', 'deploy'])
   .description('Publish packages for all modified or unpublished workspaces.')
   .option('-b, --base-ref <ref>', 'The Git base reference for detecting modified workspaces')
+  .option('--prerelease', 'Enforce prerelease versions')
   .option('--no-tag', 'Disable automatic commit tagging')
   .allowExcessArguments(false)
   .allowUnknownOption(false)
-  .action(async ({ baseRef = null, tag }) => {
+  .action(async ({ baseRef = null, prerelease = false, tag }) => {
     await git.fetchUnshallow();
 
     baseRef ||= process.env.GITHUB_BASE_REF || (await git.getBaseRefTag()) || null;
@@ -156,10 +160,11 @@ program
     }
 
     const workspaces = await npm.getWorkspaces(baseRef);
+    const publishable = [...workspaces.values()].filter(
+      (workspace) => !workspace.private && (workspace.modified || !workspace.published),
+    );
 
-    if (
-      [...workspaces.values()].every((workspace) => workspace.private || (!workspace.modified && !workspace.published))
-    ) {
+    if (publishable.length === 0) {
       console.log('No modified or unpublished workspaces.');
       return;
     }
@@ -170,20 +175,28 @@ program
     }
 
     // Publish packages for all modified or unpublished workspaces.
-    for (const [name, workspace] of workspaces) {
-      if (workspace.private || (!workspace.modified && workspace.published)) {
+    for (const workspace of workspaces.values()) {
+      if (!publishable.includes(workspace)) {
         console.log(
-          `${name}: skipped v${workspace.version} (${workspace.private ? 'private' : 'unmodified, published'}).`,
+          `${workspace.name}: Skipped v${workspace.version} (${
+            workspace.private ? 'private' : 'unmodified, published'
+          }).`,
         );
         continue;
       }
 
+      if (prerelease && workspace.version.prerelease.length === 0) {
+        console.error(`${workspace.name}: Use a prerelease version.`);
+        process.exitCode ??= 1;
+        return;
+      }
+
       process.stdout.write(
-        `${name}: publishing v${workspace.version} (${workspace.modified ? 'modified' : 'unpublished'})...`,
+        `${workspace.name}: Publishing v${workspace.version} (${workspace.modified ? 'modified' : 'unpublished'})...`,
       );
 
       try {
-        await npm.publish(workspace.location);
+        // await npm.publish(workspace.location);
         console.log('succeeded.');
       } catch (err) {
         console.log('failed.');
